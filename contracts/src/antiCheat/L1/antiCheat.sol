@@ -30,19 +30,19 @@ contract AntiCheat {
     }
 
     // function to bridge the ETH to Arbitrum
-    function bridgeToArbitrum() public {
+    function bridgeToArbitrum() public payable {
         // Send the entire contract balance to the user's l2 withdrawal smart contract with anti cheat enabled
         // Inbox.depositEth{value: address(this).balance}(userBridgeAddress);
 
-        uint256 maxGas = 60000;
+        uint256 maxGas = 100000000;
         uint256 gasPriceBid = 100000000;
-        uint256 maxSubmissionCost = 210000;
+        uint256 maxSubmissionCost = 100000000;
         bytes memory emptyBytes;
         uint256 arbTxCallValue = address(this).balance;
 
         Inbox.createRetryableTicket{value: arbTxCallValue}(
             userBridgeAddress,
-            arbTxCallValue,
+            arbTxCallValue - maxGas - gasPriceBid - maxSubmissionCost - 1000,
             maxSubmissionCost,
             userBridgeAddress, // Refund excess fees to msg.sender
             userBridgeAddress, // Refund value to msg.sender
