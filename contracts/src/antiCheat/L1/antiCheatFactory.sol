@@ -32,42 +32,42 @@ contract AntiCheatFactory {
     /// @param _appId The World ID app ID
     /// @param _actionId The World ID action ID
     constructor(
-        IWorldID _worldId,
+        address _worldId,
         string memory _appId,
         string memory _actionId
     ) {
-        worldId = _worldId;
+        worldId = IWorldID(_worldId);
         externalNullifier = abi
             .encodePacked(abi.encodePacked(_appId).hashToField(), _actionId)
             .hashToField();
     }
 
-    /// @param signal An arbitrary input from the user that cannot be tampered with. In this case, it is the user's wallet address.
-    /// @param root The root (returned by the IDKit widget).
-    /// @param nullifierHash The nullifier hash for this proof, preventing double signaling (returned by the IDKit widget).
-    /// @param proof The zero-knowledge proof that demonstrates the claimer is registered with World ID (returned by the IDKit widget).
+    //// @param signal An arbitrary input from the user that cannot be tampered with. In this case, it is the user's wallet address.
+    //// @param root The root (returned by the IDKit widget).
+    //// @param nullifierHash The nullifier hash for this proof, preventing double signaling (returned by the IDKit widget).
+    //// @param proof The zero-knowledge proof that demonstrates the claimer is registered with World ID (returned by the IDKit widget).
     function verifyAndDeployAntiCheat(
-        // address signal,
-        // uint256 root,
-        // uint256 nullifierHash,
-        // uint256[8] calldata proof,
+        address signal,
+        uint256 root,
+        uint256 nullifierHash,
+        uint256[8] calldata proof,
         address userBridgeAddress
     ) public returns (address) {
         // First, we make sure this person hasn't done this before
-        // if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
+        if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
 
-        // // We now verify the provided proof is valid and the user is verified by World ID
-        // worldId.verifyProof(
-        //     root,
-        //     groupId, // set to "1" in the constructor
-        //     abi.encodePacked(signal).hashToField(),
-        //     nullifierHash,
-        //     externalNullifier,
-        //     proof
-        // );
+        // We now verify the provided proof is valid and the user is verified by World ID
+        worldId.verifyProof(
+            root,
+            groupId, // set to "1" in the constructor
+            abi.encodePacked(signal).hashToField(),
+            nullifierHash,
+            externalNullifier,
+            proof
+        );
 
         // // We now record the user has done this, so they can't do it again (sybil-resistance)
-        // nullifierHashes[nullifierHash] = true;
+        nullifierHashes[nullifierHash] = true;
 
         // Finally, execute your logic here, knowing the user is verified
         AntiCheat antiCheat = new AntiCheat(userBridgeAddress);
