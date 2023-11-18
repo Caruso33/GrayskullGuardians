@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {SmoothiePool} from "../../smPool/smoothiePool.sol";
+import {SmoothiePool} from "../../smPool/L2/smoothiePool.sol";
 
 contract AntiCheat {
     // The address of the user who is allowed to withdraw

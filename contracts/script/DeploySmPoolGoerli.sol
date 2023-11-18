@@ -3,10 +3,22 @@ pragma solidity ^0.8.19;
 
 import {Script, console2} from "forge-std/Script.sol";
 
-contract CounterScript is Script {
+import "../src/smPool/L1/smoothiePool.sol";
+
+contract DeployFactoryGoerliScript is Script {
+    SmoothiePool smoothiePool;
+
     function setUp() public {}
 
     function run() public {
-        vm.broadcast();
+        vm.startBroadcast();
+
+        // run with goerli RPC
+         smoothiePool = new SmoothiePool(
+            address(0x0),
+            address(0x0)
+        );
+
+        vm.stopBroadcast();
     }
 }

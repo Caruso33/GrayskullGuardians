@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 interface IInbox {
-    function depositEth(address destAddr) external payable returns (uint256);
+    function depositEth() external payable returns (uint256);
 
     function createRetryableTicket(
         address destAddr,
@@ -29,26 +29,29 @@ contract AntiCheat {
         userBridgeAddress = _userBridgeAddress;
     }
 
-    // function to bridge the ETH to Arbitrum
+    // function to bridge the ETH to Arbitrum #1
     function bridgeToArbitrum() public payable {
         // Send the entire contract balance to the user's l2 withdrawal smart contract with anti cheat enabled
-        // Inbox.depositEth{value: address(this).balance}(userBridgeAddress);
+        Inbox.depositEth{value: address(this).balance}();
+    }
 
-        uint256 maxGas = 100000000;
-        uint256 gasPriceBid = 100000000;
-        uint256 maxSubmissionCost = 100000000;
-        bytes memory emptyBytes;
-        uint256 arbTxCallValue = address(this).balance;
-
-        Inbox.createRetryableTicket{value: arbTxCallValue}(
+    // function to bridge the ETH to Arbitrum #2
+    function bringToArbitrumAntiCheat(
+        uint256 maxSubmissionCost,
+        uint256 maxGas,
+        uint256 gasPriceBid,
+        uint256 arbTxCallValue
+    ) public payable {
+        // Send the entire contract balance to the user's l2 withdrawal smart contract with anti cheat enabled
+        Inbox.createRetryableTicket{value: address(this).balance}(
             userBridgeAddress,
-            arbTxCallValue - maxGas - gasPriceBid - maxSubmissionCost - 1000,
+            arbTxCallValue,
             maxSubmissionCost,
-            userBridgeAddress, // Refund excess fees to msg.sender
-            userBridgeAddress, // Refund value to msg.sender
+            userBridgeAddress,
+            userBridgeAddress,
             maxGas,
             gasPriceBid,
-            emptyBytes
+            new bytes(0)
         );
     }
 

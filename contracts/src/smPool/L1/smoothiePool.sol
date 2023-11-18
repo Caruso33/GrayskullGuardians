@@ -1,9 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import {EAS} from "../eas/EAS.sol";
-import {NO_EXPIRATION_TIME, EMPTY_UID} from "../eas/Common.sol";
-import {IEAS, AttestationRequest, AttestationRequestData} from "../eas/IEAS.sol";
+import {EAS} from "../../eas/EAS.sol";
+import {NO_EXPIRATION_TIME, EMPTY_UID} from "../../eas/Common.sol";
+import {IEAS, AttestationRequest, AttestationRequestData} from "../../eas/IEAS.sol";
 
 contract SmoothiePool {
     EAS public immutable eas;

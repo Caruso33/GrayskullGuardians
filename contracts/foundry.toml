@@ -4,3 +4,10 @@ out = "out"
 libs = ["lib"]
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
+[rpc_endpoints]
+goerli = "${GOERLI_RPC_URL}"
+
+[etherscan]
+goerli = { key = "KH8U9YSS7UVX1A1MC4IRFDDNS92Y88V7IN" }
+arbitrum-goerli = { key = "TC4QJWCZJSAPKJ28P1IVS7VGJPBIIKCQCP" }
+# See more config options https://github.com/foundry-rs/foundry/tree/master/config

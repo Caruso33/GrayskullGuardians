@@ -13,12 +13,8 @@ contract DeployFactoryGoerliScript is Script {
     function run() public {
         vm.startBroadcast();
 
-        // run with goerli RPC
-        antiCheatFactory = new AntiCheatFactory(
-            address(0x11cA3127182f7583EfC416a8771BD4d11Fae4334),
-            "app_staging_5a3767eb5edf300e988f7d1252ee2f08",
-            "verfiy"
-        );
+        // run with arbitrum goerli RPC
+        antiCheatFactory = new AntiCheatFactory();
 
         vm.stopBroadcast();
     }
