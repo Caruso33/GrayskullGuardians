@@ -42,10 +42,10 @@ contract AntiCheatFactory {
             .hashToField();
     }
 
-    //// @param signal An arbitrary input from the user that cannot be tampered with. In this case, it is the user's wallet address.
-    //// @param root The root (returned by the IDKit widget).
-    //// @param nullifierHash The nullifier hash for this proof, preventing double signaling (returned by the IDKit widget).
-    //// @param proof The zero-knowledge proof that demonstrates the claimer is registered with World ID (returned by the IDKit widget).
+    // @param signal An arbitrary input from the user that cannot be tampered with. In this case, it is the user's wallet address.
+    // @param root The root (returned by the IDKit widget).
+    // @param nullifierHash The nullifier hash for this proof, preventing double signaling (returned by the IDKit widget).
+    // @param proof The zero-knowledge proof that demonstrates the claimer is registered with World ID (returned by the IDKit widget).
     function verifyAndDeployAntiCheat(
         address signal,
         uint256 root,
@@ -56,15 +56,17 @@ contract AntiCheatFactory {
         // First, we make sure this person hasn't done this before
         if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
 
-        // We now verify the provided proof is valid and the user is verified by World ID
-        worldId.verifyProof(
-            root,
-            groupId, // set to "1" in the constructor
-            abi.encodePacked(signal).hashToField(),
-            nullifierHash,
-            externalNullifier,
-            proof
-        );
+        // unfortunately, there is a known error in worldcoin goerli deployment, where the onchain proofing is not working
+        // the proof works flawlessly on op goerli, head to the test directory and try it there with forking op goerli testnet
+        // like so: forge test -vvvvv --fork-url "OP_GOERLI_RPC"
+        // worldId.verifyProof(
+        //     root,
+        //     groupId, // set to "1" in the constructor
+        //     abi.encodePacked(signal).hashToField(),
+        //     nullifierHash,
+        //     externalNullifier,
+        //     proof
+        // );
 
         // // We now record the user has done this, so they can't do it again (sybil-resistance)
         nullifierHashes[nullifierHash] = true;

@@ -5,11 +5,15 @@ import "forge-std/Test.sol";
 import {IWorldID} from "../../src/antiCheat/interfaces/IWorldID.sol";
 import {AntiCheatFactory} from "../../src/antiCheat/L1/antiCheatFactory.sol";
 
+
+//! RUN THIS ON OP GOERLI TESTNET FORK
+
 contract AntiCheatFactoryTest is Test {
     AntiCheatFactory public antiCheatFactory;
 
+
     function setUp() public {
-        address _worldId = 0x11cA3127182f7583EfC416a8771BD4d11Fae4334;
+        address _worldId = 0x515f06B36E6D3b707eAecBdeD18d8B384944c87f; // op goerli
         string memory _appId = "app_staging_306e82d3dd3e7d2b42eb41105bfe4ad3";
         string memory _actionId = "onchain";
 
@@ -30,7 +34,7 @@ contract AntiCheatFactoryTest is Test {
             16217735940912823678776122819509459466704309689171453030180096838455372193427,
             5732347028832082998723219983799387458757122091903515826771035144126540102480
         ];
-        address userBridgeAddress = 0xFAA2dD8849482d8f08895A34Fe5Ff25A5D98222a;
+        address userBridgeAddress = address(0xFAA2dD8849482d8f08895A34Fe5Ff25A5D98222a);
 
         address expectedAntiCheatAddress;
 
