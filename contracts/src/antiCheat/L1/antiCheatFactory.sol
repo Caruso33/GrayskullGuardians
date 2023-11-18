@@ -56,9 +56,9 @@ contract AntiCheatFactory {
         // First, we make sure this person hasn't done this before
         if (nullifierHashes[nullifierHash]) revert InvalidNullifier();
 
-        // unfortunately, there is a known error in worldcoin goerli deployment, where the onchain proofing is not working
-        // the proof works flawlessly on op goerli, head to the test directory and try it there with forking op goerli testnet
-        // like so: forge test -vvvvv --fork-url "OP_GOERLI_RPC"
+        //! unfortunately, there is a known error in worldcoin goerli deployment, where the onchain proofing is not working
+        //! the proof works flawlessly on op goerli, head to the test directory and try it there with forking op goerli testnet
+        //! like so: forge test -vvvvv --fork-url "OP_GOERLI_RPC"
         // worldId.verifyProof(
         //     root,
         //     groupId, // set to "1" in the constructor
@@ -68,10 +68,10 @@ contract AntiCheatFactory {
         //     proof
         // );
 
-        // // We now record the user has done this, so they can't do it again (sybil-resistance)
+        // We now record the user has done this, so they can't do it again (sybil-resistance)
         nullifierHashes[nullifierHash] = true;
 
-        // Finally, execute your logic here, knowing the user is verified
+        // Finally, execute our logic here, knowing the user is verified
         AntiCheat antiCheat = new AntiCheat(userBridgeAddress);
 
         emit AntiCheatCreated(address(antiCheat), msg.sender);
