@@ -16,6 +16,10 @@ interface IInbox {
     ) external payable returns (uint256);
 }
 
+interface INewUserData {
+    function addUser(address) external payable;
+}
+
 contract AntiCheat {
     // The address of the Arbitrum inbox contract
     IInbox public constant Inbox =
@@ -30,15 +34,18 @@ contract AntiCheat {
     }
 
     // function to bridge the ETH to Arbitrum
-    function bridgeToArbitrum() public payable {
+    function bridgeToArbitrum(address newUser) public payable {
         // Send the entire contract balance to the user's l2 withdrawal smart contract with anti cheat enabled
         // Inbox.depositEth{value: address(this).balance}(userBridgeAddress);
 
-        uint256 maxGas = 100000000;
+        uint256 maxGas = 64915;
         uint256 gasPriceBid = 100000000;
-        uint256 maxSubmissionCost = 100000000;
-        bytes memory emptyBytes;
-        uint256 arbTxCallValue = address(this).balance;
+        uint256 maxSubmissionCost = 24886;
+        uint totalCost = 9088100024886;
+        bytes memory data = abi.encodeWithSelector(INewUserData.addUser.selector, newUser);
+        require(address(this).balance > totalCost, "not enough funds");
+        uint256 arbTxCallValue = address(this).balance - totalCost;
+
 
         Inbox.createRetryableTicket{value: arbTxCallValue}(
             userBridgeAddress,
@@ -48,7 +55,7 @@ contract AntiCheat {
             userBridgeAddress, // Refund value to msg.sender
             maxGas,
             gasPriceBid,
-            emptyBytes
+            data
         );
     }
 
