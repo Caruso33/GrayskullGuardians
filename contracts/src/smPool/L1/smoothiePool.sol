@@ -5,13 +5,38 @@ import {EAS} from "../../eas/EAS.sol";
 import {NO_EXPIRATION_TIME, EMPTY_UID} from "../../eas/Common.sol";
 import {IEAS, AttestationRequest, AttestationRequestData} from "../../eas/IEAS.sol";
 
+interface IInbox {
+    function depositEth() external payable returns (uint256);
+
+    function createRetryableTicket(
+        address destAddr,
+        uint256 arbTxCallValue,
+        uint256 maxSubmissionCost,
+        address submissionRefundAddress,
+        address valueRefundAddress,
+        uint256 maxGas,
+        uint256 gasPriceBid,
+        bytes calldata data
+    ) external payable returns (uint256);
+}
+
+interface IL2SmoothiePool {
+    function addToPool(
+        bytes memory worldId,
+        address withdrawalAddress
+    ) external payable;
+}
+
 contract SmoothiePool {
     EAS public immutable eas;
+    IInbox public constant inbox =
+        IInbox(0x6BEbC4925716945D46F0Ec336D5C2564F419682C);
 
     uint256 private _totalDenomUnits;
     uint private _totalParticipants;
     uint public currentEpoch;
     address public daoMultiSigAddress;
+    address public l2SmoothiePool;
 
     uint256 public payoutFreezePeriod = 7 days;
     uint256 public payoutEthThreshold = 0.1 ether;
@@ -53,6 +78,11 @@ contract SmoothiePool {
         daoMultiSigAddress = _daoMultiSigAddress;
     }
 
+    function updateL2Target(address _l2Target) public {
+        l2SmoothiePool = _l2Target;
+    }
+
+
     function onEpoch() external {
         // uint256 unslashedParticipants = 0;
 
@@ -76,7 +106,7 @@ contract SmoothiePool {
     function addToPool(
         bytes memory worldId,
         address withdrawalAddress
-    ) external {
+    ) external returns(uint){
         Participant memory participant = worldIdToParticipant[worldId];
 
         if (participant.withdrawalAddress != address(0)) {
@@ -96,8 +126,25 @@ contract SmoothiePool {
         participants.push(worldId);
         _totalParticipants++;
 
+        uint256 maxGas = 64915;
+        uint256 gasPriceBid = 100000000;
+        uint256 maxSubmissionCost = 24886;
+        uint deposit = 9088100024886;
+        bytes memory data = abi.encodeWithSelector(IL2SmoothiePool.addToPool.selector, worldId, withdrawalAddress);
+        uint callValue = address(this).balance - deposit;
+        uint256 ticketID = inbox.createRetryableTicket{ value: address(this).balance }(
+            l2SmoothiePool,
+            callValue,
+            maxSubmissionCost,
+            l2SmoothiePool,
+            l2SmoothiePool,
+            maxGas,
+            gasPriceBid,
+            data
+        );
 
         emit AddedToPool(worldId, withdrawalAddress);
+        return(ticketID);
     }
 
     function initiateRewardsCreateAttestation(bytes memory worldId) external {

@@ -9,17 +9,22 @@ contract SmoothiePool {
     EAS public immutable eas;
 
     address daoMultiSigAddress;
-    uint256 totalDenomUnits;
+    uint256 private _totalDenomUnits;
+    uint private _totalParticipants;
+    uint public currentEpoch;
 
     uint256 payoutFreezePeriod = 7 days;
     uint256 payoutEthThreshold = 0.1 ether;
+
+    address public l1SmoothiePool;
+    uint160 internal constant OFFSET = uint160(0x1111000000000000000000000000000000001111);
 
     struct Participant {
         bytes worldId;
         address withdrawalAddress; // the noCheat contract address in this case
         address walletAddress; // the wallet address of the validator
-        uint256 joinedTimestamp;
-        uint256 denomUnits;
+        uint256 joinedEpoch;
+        //uint256 denomUnits;
         address[] attestationChallengers;
         bool isSlashed;
         uint256 requestPayoutTimestamp;
@@ -44,34 +49,44 @@ contract SmoothiePool {
     error NoRequestForPayout();
     error NotReachedPayoutTimestamp();
     error EthPayoutThresholdNotReached();
+    error OnlyUpdateableByL1Smoothie();
 
     constructor(address _eas, address _daoMultiSigAddress) {
         eas = EAS(_eas);
         daoMultiSigAddress = _daoMultiSigAddress;
     }
 
+    function updateL1Target(address _l1Target) public {
+        l1SmoothiePool = _l1Target;
+    }
+
     function onEpoch() external {
-        uint256 unslashedParticipants = 0;
+        // uint256 unslashedParticipants = 0;
 
-        for (uint256 i = 0; i < participants.length; i++) {
-            bytes memory worldId = participants[i];
-            Participant memory participant = worldIdToParticipant[worldId];
+        // for (uint256 i = 0; i < participants.length; i++) {
+        //     bytes memory worldId = participants[i];
+        //     Participant memory participant = worldIdToParticipant[worldId];
 
-            if (!participant.isSlashed) {
-                participant.denomUnits += 1;
-                worldIdToParticipant[worldId] = participant;
+        //     if (!participant.isSlashed) {
+        //         participant.denomUnits += 1;
+        //         worldIdToParticipant[worldId] = participant;
 
-                unslashedParticipants += 1;
-            }
-        }
-
-        totalDenomUnits += unslashedParticipants;
+        //         unslashedParticipants += 1;
+        //     }
+        // }
+        _totalDenomUnits += _totalParticipants;
+        currentEpoch++;
+        
     }
 
     function addToPool(
         bytes memory worldId,
         address withdrawalAddress
-    ) external {
+    ) external payable{
+        if(msg.sender != applyL1ToL2Alias(l1SmoothiePool)) {
+            revert OnlyUpdateableByL1Smoothie();
+        }
+            
         Participant memory participant = worldIdToParticipant[worldId];
 
         if (participant.withdrawalAddress != address(0)) {
@@ -83,8 +98,7 @@ contract SmoothiePool {
             worldId,
             withdrawalAddress,
             msg.sender,
-            block.timestamp,
-            0,
+            currentEpoch,
             attestationChallengers,
             false,
             0
@@ -92,6 +106,12 @@ contract SmoothiePool {
         participants.push(worldId);
 
         emit AddedToPool(worldId, withdrawalAddress);
+    }
+
+    function applyL1ToL2Alias(address l1Address) internal pure returns (address l2Address) {
+        unchecked {
+            l2Address = address(uint160(l1Address) + OFFSET);
+        }
     }
 
     function initiateRewardsCreateAttestation(bytes memory worldId) external {
@@ -109,7 +129,8 @@ contract SmoothiePool {
             revert AlreadyRequestingPayout();
         }
 
-        uint256 participantShare = totalDenomUnits / participant.denomUnits;
+        uint participantDenomUnits = participant.joinedEpoch - currentEpoch;
+        uint256 participantShare = _totalDenomUnits / participantDenomUnits;
 
         if (address(this).balance / participantShare < payoutEthThreshold) {
             revert EthPayoutThresholdNotReached();
@@ -197,16 +218,20 @@ contract SmoothiePool {
             attestationOwnerParticipant.attestationChallengers.length >
             (unslashedParticipants / 2)
         ) {
-            uint256 attestationOwnerShare = totalDenomUnits /
-                attestationOwnerParticipant.denomUnits;
+            
+            uint attestationOwnerParticipantDenomUnits = attestationOwnerParticipant.joinedEpoch - currentEpoch;
+            uint256 attestationOwnerShare = _totalDenomUnits /
+                attestationOwnerParticipantDenomUnits;
+
+            attestationOwnerParticipant.isSlashed = true;
+            _totalDenomUnits - attestationOwnerParticipantDenomUnits;
+            attestationOwnerParticipant.joinedEpoch = currentEpoch;
 
             payable(address(0x0)).transfer(
                 address(this).balance / attestationOwnerShare
             ); // burn share
 
-            attestationOwnerParticipant.isSlashed = true;
-            totalDenomUnits - attestationOwnerParticipant.denomUnits;
-            attestationOwnerParticipant.denomUnits = 0;
+            
         }
     }
 
@@ -229,15 +254,17 @@ contract SmoothiePool {
             revert NotReachedPayoutTimestamp();
         }
 
-        uint256 attestationOwnerShare = totalDenomUnits /
-            participant.denomUnits;
+        uint participantDenomUnits = participant.joinedEpoch - currentEpoch;
+        participant.joinedEpoch == currentEpoch;
+        uint256 attestationOwnerShare = _totalDenomUnits /
+            participantDenomUnits;
 
         participant.requestPayoutTimestamp = 0;
         address[] memory attestationChallengers;
         participant.attestationChallengers = attestationChallengers;
 
-        totalDenomUnits -= attestationOwnerShare;
-        participant.denomUnits = 0;
+        _totalDenomUnits -= attestationOwnerShare;
+        participant.joinedEpoch = currentEpoch;
 
         worldIdToParticipant[worldId] = participant;
 
