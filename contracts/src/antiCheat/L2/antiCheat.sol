@@ -19,7 +19,7 @@ contract AntiCheat {
         validatorWalletAddress = _validatorWalletAddress;
 
         pool = SmoothiePool(_pool);
-        pool.addToPool(worldId, _validatorWalletAddress);
+        // pool.addToPool(worldId, _validatorWalletAddress);
     }
 
     // function to bridge the ETH to Arbitrum
