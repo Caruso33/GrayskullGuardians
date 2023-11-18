@@ -6,10 +6,10 @@ import { getSchemaUID } from '../../utils/EAS';
 import Logger from '../../utils/Logger';
 
 export const SCHEMAS = [
-  // {schema: 'string worldId,address withdrawalAddress,address walletAddress,uint64 timestamp', name: "GrayskullGuardiansSmoothiePool"}
+  {schema: 'string worldId,address withdrawalAddress,address walletAddress', name: "GrayskullGuardiansSmoothiePool"}
   // {schema: 'string x', name: "xString"}
   // {schema: 'uints x', name: "xUints"}
-  {schema: 'address y', name: "yAddress"}
+  // {schema: 'address y', name: "yAddress"}
 ]
 
 const func: DeployFunction = async ({ getNamedAccounts }: HardhatRuntimeEnvironment) => {
