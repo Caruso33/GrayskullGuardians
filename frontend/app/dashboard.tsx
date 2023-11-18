@@ -147,13 +147,19 @@ const Dashboard: NextPage = () => {
         {bgstep == bg1 && (
           <>
             <div className="absolute bottom-0 left-0 p-4 mb-11 ml-56">
-              <button className="btn z-50" onClick={() => setBgstep(bg2)}>
-                step 2
+              <button
+                className="btn btn-lg z-50 btn-ghost"
+                onClick={() => setBgstep(bg2)}
+              >
+                __________________________
               </button>
             </div>
             <div className="absolute bottom-0 left-96 p-4 mb-11 ml-96">
-              <button className="btn z-50" onClick={() => setBgstep(bg6)}>
-                step 6
+              <button
+                className="btn btn-lg z-50 btn-ghost"
+                onClick={() => setBgstep(bg6)}
+              >
+                __________________________
               </button>
             </div>
           </>
@@ -163,8 +169,11 @@ const Dashboard: NextPage = () => {
 
         {bgstep == bg2 && isConnected && (
           <div className="absolute bottom-0 left-0 p-4 mb-11 ml-56">
-            <button className="btn z-50" onClick={() => setBgstep(bg3)}>
-              next step
+            <button
+              className="btn btn-lg z-50 btn-ghost"
+              onClick={() => setBgstep(bg3)}
+            >
+              __________________________
             </button>
           </div>
         )}
@@ -178,8 +187,11 @@ const Dashboard: NextPage = () => {
         {/* Step 3 */}
         {bgstep == bg3 && isConnected && (
           <div className="absolute bottom-0 left-0 p-4 mb-11 ml-56">
-            <button className="btn z-50" onClick={() => addMEVBlocker()}>
-              Add MEVBlocker for Safe
+            <button
+              className="btn btn-lg z-50 btn-ghost"
+              onClick={() => addMEVBlocker()}
+            >
+              __________________________
             </button>
           </div>
         )}
@@ -199,8 +211,8 @@ const Dashboard: NextPage = () => {
               theme="light"
             >
               {({ open }) => (
-                <button className="btn" onClick={open}>
-                  Verify with World ID
+                <button className="btn btn-lg z-50 btn-ghost" onClick={open}>
+                  __________________________
                 </button>
               )}
             </IDKitWidget>
@@ -209,20 +221,20 @@ const Dashboard: NextPage = () => {
 
         {/* Step 5 */}
         {bgstep == bg5 && proof && (
-          <div className="absolute bottom-0 left-0 p-4 mb-11 ml-56">
+          
             <>
               <div className="absolute bottom-0 left-0 p-4 mb-11 ml-56">
-                <button className="btn z-50" onClick={() => write?.()}>
-                  Deploy Contract L2
+                <button className="btn btn-lg z-50 btn-ghost" onClick={() => write?.()}>
+                __________________________
                 </button>
               </div>
               <div className="absolute bottom-0 left-96 p-4 mb-11 ml-96">
-                <button className="btn z-50" onClick={() => write?.()}>
-                  Deploy Contract L1
+                <button className="btn btn-lg z-50 btn-ghost" onClick={() => write?.()}>
+                __________________________
                 </button>
               </div>
             </>
-          </div>
+ 
         )}
 
         {/* Step 6 */}
