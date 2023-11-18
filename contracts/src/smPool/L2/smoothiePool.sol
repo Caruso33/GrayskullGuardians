@@ -43,7 +43,7 @@ contract SmoothiePool {
     error AlreadyRequestingChallenged();
     error NoRequestForPayout();
     error NotReachedPayoutTimestamp();
-    error EthPayoutThreshouldNotReached();
+    error EthPayoutThresholdNotReached();
 
     constructor(address _eas, address _daoMultiSigAddress) {
         eas = EAS(_eas);
@@ -112,7 +112,7 @@ contract SmoothiePool {
         uint256 participantShare = totalDenomUnits / participant.denomUnits;
 
         if (address(this).balance / participantShare < payoutEthThreshold) {
-            revert EthPayoutThreshouldNotReached();
+            revert EthPayoutThresholdNotReached();
         }
 
         participant.requestPayoutTimestamp = block.timestamp;
