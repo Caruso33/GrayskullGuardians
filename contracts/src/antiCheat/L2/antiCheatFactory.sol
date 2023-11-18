@@ -10,7 +10,7 @@ contract AntiCheatFactory {
     );
 
     function deployAntiCheatL2(
-        address _pool,
+        address payable _pool,
         bytes memory _worldId,
         address _validatorWalletAddress
     ) public returns (address) {
