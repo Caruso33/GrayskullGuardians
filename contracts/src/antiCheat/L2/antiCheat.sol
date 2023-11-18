@@ -10,7 +10,7 @@ contract AntiCheat {
     address public immutable validatorWalletAddress;
 
     constructor(
-        address _pool,
+        address payable _pool,
         bytes memory _worldId,
         address _validatorWalletAddress
     ) {
