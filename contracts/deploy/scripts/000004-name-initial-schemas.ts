@@ -5,15 +5,23 @@ import { NO_EXPIRATION, ZERO_ADDRESS, ZERO_BYTES32 } from '../../utils/Constants
 import { execute, InstanceName, setDeploymentMetadata } from '../../utils/Deploy';
 import { getSchemaUID } from '../../utils/EAS';
 import Logger from '../../utils/Logger';
-import { SCHEMAS } from '../scripts/000003-register-initial-schemas';
+import { SCHEMAS } from './000003-register-initial-schemas';
 
-const NAME_SCHEMA_UID = getSchemaUID('string worldId,address withdrawalAddress,address walletAddress,uint64 timestamp', ZERO_ADDRESS, true);
+// const NAME_SCHEMA_UID = getSchemaUID('string worldId,address withdrawalAddress,address walletAddress,uint64 timestamp', ZERO_ADDRESS, false);
+const NAME_SCHEMA_UID = getSchemaUID('string x', ZERO_ADDRESS, false);
 
 const func: DeployFunction = async ({ getNamedAccounts }: HardhatRuntimeEnvironment) => {
   const { deployer } = await getNamedAccounts();
 
   for (const { schema, name } of SCHEMAS) {
-    const schemaId = getSchemaUID(schema, ZERO_ADDRESS, true);
+    const schemaId = getSchemaUID(schema, ZERO_ADDRESS, false);
+
+    console.log('schemaId', schemaId)
+
+    const worldId = "worldId"
+    // const withdrawalAddress = ZERO_ADDRESS
+    // const walletAddress = ZERO_ADDRESS
+    // const timestamp = 0
 
     await execute({
       name: InstanceName.EAS,
@@ -26,7 +34,8 @@ const func: DeployFunction = async ({ getNamedAccounts }: HardhatRuntimeEnvironm
             expirationTime: NO_EXPIRATION,
             revocable: true,
             refUID: ZERO_BYTES32,
-            data: AbiCoder.defaultAbiCoder().encode(['bytes32', 'string'], [schemaId, name]),
+            // data: AbiCoder.defaultAbiCoder().encode(['string', 'address', 'address', 'uint64'], [worldId,withdrawalAddress,walletAddress,timestamp]),
+            data: AbiCoder.defaultAbiCoder().encode(['string'], [worldId]),
             value: 0
           }
         }
@@ -34,12 +43,10 @@ const func: DeployFunction = async ({ getNamedAccounts }: HardhatRuntimeEnvironm
       from: deployer
     });
 
-    Logger.log(`Named schema ${schema} as "${name}"`);
+    Logger.log(`Named schema ${JSON.stringify(schema, null, 2)} as "${name}"`);
   }
 
   return true;
 };
 
 export default setDeploymentMetadata(__filename, func);
-
-// export const tags  = ['schemas']

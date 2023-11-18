@@ -6,7 +6,8 @@
   "scripts": {
     "compile": "hardhat compile",
     "deploy:goerli": "HARDHAT_NETWORK=goerli hardhat deploy",
-    "deploy:arbitrum-goerli": "HARDHAT_NETWORK=arbitrum-goerli hardhat deploy"
+    "deploy:arbitrum-goerli": "HARDHAT_NETWORK=arbitrum-goerli hardhat deploy",
+    "verify:arbitrum-goerli": "HARDHAT_NETWORK=arbitrum-goerli hardhat etherscan-verify --license MIT"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
