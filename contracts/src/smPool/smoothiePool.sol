@@ -116,7 +116,7 @@ contract SmoothiePool {
             revert AlreadyRequestingPayout();
         }
 
-        uint participntDenomUnits = participant.joinedEpoch - currentEpoch;
+        uint participantDenomUnits = participant.joinedEpoch - currentEpoch;
         uint256 participantShare = _totalDenomUnits / participantDenomUnits;
 
         if (address(this).balance / participantShare < payoutEthThreshold) {
