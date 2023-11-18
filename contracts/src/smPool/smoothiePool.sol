@@ -8,11 +8,11 @@ import {IEAS, AttestationRequest, AttestationRequestData} from "../eas/IEAS.sol"
 contract SmoothiePool {
     EAS public immutable eas;
 
-    address daoMultiSigAddress;
-    uint256 totalDenomUnits;
+    uint256 private _totalDenomUnits;
+    address public daoMultiSigAddress;
 
-    uint256 payoutFreezePeriod = 7 days;
-    uint256 payoutEthThreshold = 0.1 ether;
+    uint256 public payoutFreezePeriod = 7 days;
+    uint256 public payoutEthThreshold = 0.1 ether;
 
     struct Participant {
         bytes worldId;
@@ -32,7 +32,8 @@ contract SmoothiePool {
     event RewardAttestationCreated(
         bytes worldId,
         address withdrawalAddress,
-        address walletAddress
+        address walletAddress,
+        bytes32 attestationUid
     );
 
     error AlreadyInPool();
@@ -65,7 +66,7 @@ contract SmoothiePool {
             }
         }
 
-        totalDenomUnits += unslashedParticipants;
+        _totalDenomUnits += unslashedParticipants;
     }
 
     function addToPool(
@@ -109,7 +110,7 @@ contract SmoothiePool {
             revert AlreadyRequestingPayout();
         }
 
-        uint256 participantShare = totalDenomUnits / participant.denomUnits;
+        uint256 participantShare = _totalDenomUnits / participant.denomUnits;
 
         if (address(this).balance / participantShare < payoutEthThreshold) {
             revert EthPayoutThreshouldNotReached();
@@ -129,7 +130,7 @@ contract SmoothiePool {
             "string worldId,address withdrawalAddress,address walletAddress,uint64 timestamp"
         );
 
-        eas.attest(
+        bytes32 attestationUid = eas.attest(
             AttestationRequest({
                 schema: bytes32(schema),
                 data: AttestationRequestData({
@@ -146,7 +147,8 @@ contract SmoothiePool {
         emit RewardAttestationCreated(
             worldId,
             participant.withdrawalAddress,
-            participant.walletAddress
+            participant.walletAddress,
+            attestationUid
         );
     }
 
@@ -197,20 +199,20 @@ contract SmoothiePool {
             attestationOwnerParticipant.attestationChallengers.length >
             (unslashedParticipants / 2)
         ) {
-            uint256 attestationOwnerShare = totalDenomUnits /
+            uint256 attestationOwnerShare = _totalDenomUnits /
                 attestationOwnerParticipant.denomUnits;
+
+            attestationOwnerParticipant.isSlashed = true;
+            _totalDenomUnits - attestationOwnerParticipant.denomUnits;
+            attestationOwnerParticipant.denomUnits = 0;
 
             payable(address(0x0)).transfer(
                 address(this).balance / attestationOwnerShare
             ); // burn share
-
-            attestationOwnerParticipant.isSlashed = true;
-            totalDenomUnits - attestationOwnerParticipant.denomUnits;
-            attestationOwnerParticipant.denomUnits = 0;
         }
     }
 
-    function payoutRewardsAfterInitialization(bytes memory worldId) internal {
+    function payoutRewardsAfterInitialization(bytes memory worldId) external {
         Participant memory participant = worldIdToParticipant[worldId];
 
         if (participant.withdrawalAddress == address(0)) {
@@ -229,14 +231,14 @@ contract SmoothiePool {
             revert NotReachedPayoutTimestamp();
         }
 
-        uint256 attestationOwnerShare = totalDenomUnits /
+        uint256 attestationOwnerShare = _totalDenomUnits /
             participant.denomUnits;
 
         participant.requestPayoutTimestamp = 0;
         address[] memory attestationChallengers;
         participant.attestationChallengers = attestationChallengers;
 
-        totalDenomUnits -= attestationOwnerShare;
+        _totalDenomUnits -= attestationOwnerShare;
         participant.denomUnits = 0;
 
         worldIdToParticipant[worldId] = participant;
