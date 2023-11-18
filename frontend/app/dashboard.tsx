@@ -1,6 +1,6 @@
-import type { NextPage } from "next"
+import type { NextPage } from "next";
 
-import { IDKitWidget, ISuccessResult, solidityEncode } from "@worldcoin/idkit" // add import for solidityEncode
+import { IDKitWidget, ISuccessResult, solidityEncode } from "@worldcoin/idkit"; // add import for solidityEncode
 import {
   mainnet,
   useAccount,
@@ -8,39 +8,39 @@ import {
   useContractWrite,
   usePrepareContractWrite,
   useSwitchNetwork,
-} from "wagmi"
-import { useEffect, useState } from "react"
-import antiCheatFactoryABI from "../utils/abi/antiCheatFactory.json"
-import antiCheatFactoryL2ABI from "../utils/abi/antiCheatFactoryL2.json"
-import bg1 from "../public/bg/1.jpeg"
-import bg2 from "../public/bg/2.jpeg"
-import bg3 from "../public/bg/3.jpeg" // replace with your image path
-import bg4 from "../public/bg/4.jpeg" // replace with your image path
-import bg5 from "../public/bg/5.jpeg" // replace with your image path
-import bg6 from "../public/bg/6.jpeg" // replace with your image path
+} from "wagmi";
+import { useEffect, useState } from "react";
+import antiCheatFactoryABI from "../utils/abi/antiCheatFactory.json";
+import antiCheatFactoryL2ABI from "../utils/abi/antiCheatFactoryL2.json";
+import bg1 from "../public/bg/1.jpeg";
+import bg2 from "../public/bg/2.jpeg";
+import bg3 from "../public/bg/3.jpeg"; // replace with your image path
+import bg4 from "../public/bg/4.jpeg"; // replace with your image path
+import bg5 from "../public/bg/5.jpeg"; // replace with your image path
+import bg6 from "../public/bg/6.jpeg"; // replace with your image path
 
-import { Chain, createWalletClient, custom } from "viem"
-import { mainnet as wcMainnet } from "viem/chains"
+import { Chain, createWalletClient, custom } from "viem";
+import { mainnet as wcMainnet } from "viem/chains";
 
-import Image, { StaticImageData } from "next/image"
+import Image, { StaticImageData } from "next/image";
 
-import { decodeAbiParameters } from "viem"
-import Link from "next/link"
+import { decodeAbiParameters } from "viem";
+import Link from "next/link";
 
 const Dashboard: NextPage = () => {
-  const { address, isConnected } = useAccount() // get the user's wallet
-  const [proof, setProof] = useState<ISuccessResult | null>(null)
+  const { address, isConnected } = useAccount(); // get the user's wallet
+  const [proof, setProof] = useState<ISuccessResult | null>(null);
 
-  const [bgstep, setBgstep] = useState(bg1)
+  const [bgstep, setBgstep] = useState(bg1);
 
-  const [l2Address, setL2Address] = useState(0x0)
+  const [l2Address, setL2Address] = useState(0x0);
 
   const { switchNetworkAsync: switchNetworkAsyncArbitrum } = useSwitchNetwork({
     chainId: 421613,
-  })
+  });
   const { switchNetworkAsync: switchNetworkAsyncGoerli } = useSwitchNetwork({
     chainId: 5,
-  })
+  });
 
   const { config } = usePrepareContractWrite({
     address: "0x7aeC313A0e6BF58ae902CcBE5a8e80D0fC0e221F" as any,
@@ -65,49 +65,39 @@ const Dashboard: NextPage = () => {
           ],
       l2Address, // should be the L2 contract
     ],
-  })
+  });
 
-  const { write: verifyL1, data } = useContractWrite(config)
+  const { write: verifyL1, data } = useContractWrite(config);
 
   const { config: configL2 } = usePrepareContractWrite({
-    address: "0x757d0c4f4731b7495d0b4d63eb67a1489f2ca3b4" as any, //  0xD46d69B47e164d09Fb57c0550C1Bed705056A844
+    address: "0x757d0c4f4731b7495d0b4d63eb67a1489f2ca3b4", //  0xD46d69B47e164d09Fb57c0550C1Bed705056A844
     abi: antiCheatFactoryL2ABI, // abi
-    // enabled: proof != null && address != null,
     functionName: "deployAntiCheatL2",
     args: [
-      "0xfd7501c6a9d8b63887dd2678d7e8f56c68c8a6ab" as any, // L2 SmoothiePool Contract
+      "0xfd7501c6a9d8b63887dd2678d7e8f56c68c8a6ab", // L2 SmoothiePool Contract
       proof?.nullifier_hash,
-      address!,
+      address,
     ],
-  })
+  });
 
-  const {
-    write: writeL2,
-    data: dataL2,
-    error: errorL2,
-  } = useContractWrite(configL2)
+  const { write: writeL2 } = useContractWrite(configL2);
 
   useContractEvent({
     address: "0x757d0c4f4731b7495d0b4d63eb67a1489f2ca3b4" as any, //  0xD46d69B47e164d09Fb57c0550C1Bed705056A844
     abi: antiCheatFactoryL2ABI,
     eventName: "AntiCheatCreated",
     listener: (logs) => {
-      console.log("logs", logs)
-
+      console.log("logs", logs as any);
       logs?.[0]?.args?.contractAddress &&
-        setL2Address(logs[0].args.contractAddress)
+        setL2Address(logs[0].args.contractAddress);
     },
-  })
-
-  useEffect(() => {
-    console.log(dataL2)
-  }, [dataL2])
+  });
 
   async function addMEVBlocker() {
     const walletClient = createWalletClient({
       chain: wcMainnet,
       transport: custom((window as any).ethereum),
-    })
+    });
 
     const mevBlocker: Chain = {
       id: 1,
@@ -124,16 +114,16 @@ const Dashboard: NextPage = () => {
           webSocket: ["wss://rpc.mevblocker.io"],
         },
       },
-    }
+    };
 
-    await walletClient.addChain({ chain: mevBlocker })
+    await walletClient.addChain({ chain: mevBlocker });
 
-    setBgstep(bg4)
+    setBgstep(bg4);
   }
 
   useEffect(() => {
-    console.log(data)
-  }, [data])
+    console.log(data);
+  }, [data]);
 
   const BackgroundImage = () => {
     return (
@@ -148,8 +138,8 @@ const Dashboard: NextPage = () => {
           className="-z-10"
         />
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="bg-[#12345600] h-screen">
@@ -234,8 +224,8 @@ const Dashboard: NextPage = () => {
               action="verfiy"
               signal={address} // prevents tampering with a message
               onSuccess={(data: any) => {
-                setProof(data)
-                setBgstep(bg5) // replace with your second function
+                setProof(data);
+                setBgstep(bg5); // replace with your second function
               }}
               autoClose
               theme="light"
@@ -259,11 +249,11 @@ const Dashboard: NextPage = () => {
                 className="btn btn-lg z-50 btn-ghost"
                 onClick={async () => {
                   try {
-                    await switchNetworkAsyncArbitrum?.()
+                    await switchNetworkAsyncArbitrum?.();
 
-                    writeL2?.()
+                    writeL2?.();
                   } catch (error: any) {
-                    console.log("Error writing l2", error.message)
+                    console.log("Error writing l2", error.message);
                   }
                 }}
               >
@@ -277,13 +267,13 @@ const Dashboard: NextPage = () => {
                 className="btn btn-lg z-50 btn-ghost"
                 onClick={async () => {
                   try {
-                    await switchNetworkAsyncGoerli?.()
+                    await switchNetworkAsyncGoerli?.();
 
-                    verifyL1?.()
+                    verifyL1?.();
 
-                    setBgstep(bg6)
+                    setBgstep(bg6);
                   } catch (error: any) {
-                    console.log("Error writing l1", error.message)
+                    console.log("Error writing l1", error.message);
                   }
                 }}
               >
@@ -307,7 +297,7 @@ const Dashboard: NextPage = () => {
                     0xcF0fad569eef3e2fe21198f4F6e1Cc9b4EabC0493
                   </p>
                   <h2 className="card-title text-black">
-                    Free Recipient Address
+                    Fee Recipient Address
                   </h2>
                   <p className="text-black">
                     0xFF0A939E6251a1930fF074F6e1Cc9b4C0495693E
@@ -328,7 +318,7 @@ const Dashboard: NextPage = () => {
         )}
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Dashboard
+export default Dashboard;
