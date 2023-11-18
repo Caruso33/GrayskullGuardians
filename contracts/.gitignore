@@ -13,3 +13,7 @@ docs/
 # Dotenv file
 .env
 lib
+node_modules
+yarn-error.log
+artifacts
+typechain-types
