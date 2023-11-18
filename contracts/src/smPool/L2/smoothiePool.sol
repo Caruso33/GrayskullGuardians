@@ -126,7 +126,7 @@ contract SmoothiePool {
         );
 
         bytes memory schema = bytes(
-            "bytes worldId,address withdrawalAddress,address walletAddress,uint64 timestamp"
+            "bytes worldId,address withdrawalAddress,address walletAddress"
         );
 
         eas.attest(
