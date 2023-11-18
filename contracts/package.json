@@ -1,0 +1,43 @@
+{
+  "name": "contracts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+    "compile": "hardhat compile",
+    "deploy:goerli": "HARDHAT_NETWORK=goerli hardhat deploy",
+    "deploy:arbitrum-goerli": "HARDHAT_NETWORK=arbitrum-goerli hardhat deploy",
+    "verify:arbitrum-goerli": "HARDHAT_NETWORK=arbitrum-goerli hardhat etherscan-verify --license MIT"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-chai-matchers": "^2.0.2",
+    "@nomicfoundation/hardhat-ethers": "^3.0.5",
+    "@nomicfoundation/hardhat-network-helpers": "^1.0.9",
+    "@nomicfoundation/hardhat-toolbox": "^4.0.0",
+    "@nomicfoundation/hardhat-verify": "^2.0.1",
+    "@nomiclabs/hardhat-solhint": "^3.0.1",
+    "@openzeppelin/contracts": "^4.9.0",
+    "@typechain/ethers-v6": "^0.5.1",
+    "@typechain/hardhat": "^9.1.0",
+    "@types/chai": "^4.3.10",
+    "@types/chance": "^1.1.6",
+    "@types/mocha": "^10.0.4",
+    "chai": "^4.3.10",
+    "chance": "^1.1.11",
+    "dotenv": "^16.3.1",
+    "ethers": "^6.8.1",
+    "hardhat-contract-sizer": "^2.10.0",
+    "hardhat-deploy": "^0.11.43",
+    "hardhat-deploy-ethers": "^0.4.1",
+    "hardhat-gas-reporter": "^1.0.9",
+    "solc": "^0.8.23-fixed",
+    "solhint": "^4.0.0",
+    "solidity-coverage": "^0.8.5",
+    "ts-node": "^10.9.1",
+    "typechain": "^8.3.2",
+    "typescript": "^5.2.2"
+  },
+  "dependencies": {
+    "hardhat": "^2.19.1"
+  }
+}
