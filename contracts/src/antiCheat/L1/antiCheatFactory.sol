@@ -69,7 +69,7 @@ contract AntiCheatFactory {
         // );
 
         // // We now record the user has done this, so they can't do it again (sybil-resistance)
-        nullifierHashes[nullifierHash] = true;
+        // nullifierHashes[nullifierHash] = true;
 
         // Finally, execute your logic here, knowing the user is verified
         AntiCheat antiCheat = new AntiCheat(userBridgeAddress);
