@@ -31,6 +31,8 @@ contract AntiCheat {
         // payable(userWalletAddress).transfer(address(this).balance);
     }
 
+    //bc I cant figure out how to call the recieve function x-chain
+    function getMoney() public payable {}
     // implement a fallback function to receive ether
     receive() external payable {}
 }

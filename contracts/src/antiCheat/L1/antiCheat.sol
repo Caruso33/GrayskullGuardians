@@ -16,8 +16,8 @@ interface IInbox {
     ) external payable returns (uint256);
 }
 
-interface INewUserData {
-    function addUser(address) external payable;
+interface IAntiCheatL2 {
+    function getMoney() external payable;
 }
 
 contract AntiCheat {
@@ -39,15 +39,12 @@ contract AntiCheat {
         Inbox.depositEth{value: address(this).balance}();
     }
 
-    function bringToArbitrumAntiCheat(address newUser) public payable {
+    function bringToArbitrumAntiCheat() public payable {
         uint256 maxGas = 64915;
         uint256 gasPriceBid = 100000000;
         uint256 maxSubmissionCost = 24886;
         uint totalCost = 9088100024886;
-        bytes memory data = abi.encodeWithSelector(
-            INewUserData.addUser.selector,
-            newUser
-        );
+        bytes memory data = abi.encodeWithSelector(IAntiCheatL2.getMoney.selector);
         require(address(this).balance > totalCost, "not enough funds");
         uint256 arbTxCallValue = address(this).balance - totalCost;
 
