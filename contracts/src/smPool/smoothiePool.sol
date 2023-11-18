@@ -16,8 +16,8 @@ contract SmoothiePool {
 
     struct Participant {
         bytes worldId;
-        address validatorWithdrawalAddress; // the noCheat Contract address in this case
-        address validatorWalletAddress; // the wallet address of the validator
+        address withdrawalAddress; // the noCheat contract address in this case
+        address walletAddress; // the wallet address of the validator
         uint256 joinedTimestamp;
         uint256 denomUnits;
         address[] attestationChallengers;
@@ -28,17 +28,18 @@ contract SmoothiePool {
     mapping(bytes => Participant) public worldIdToParticipant;
     bytes[] public participants;
 
-    event AddedToPool(bytes worldId, address validatorWithdrawalAddress);
+    event AddedToPool(bytes worldId, address withdrawalAddress);
     event RewardAttestationCreated(
         bytes worldId,
-        address validatorWithdrawalAddress,
-        address validatorWalletAddress
+        address withdrawalAddress,
+        address walletAddress
     );
 
     error AlreadyInPool();
     error ParticipantIsSlashed();
     error AlreadyRequestingPayout();
     error ParticipantNotFound();
+    error ChallengerMustBeParticipant();
     error AlreadyRequestingChallenged();
     error NoRequestForPayout();
     error NotReachedPayoutTimestamp();
@@ -69,18 +70,18 @@ contract SmoothiePool {
 
     function addToPool(
         bytes memory worldId,
-        address validatorWithdrawalAddress
+        address withdrawalAddress
     ) external {
         Participant memory participant = worldIdToParticipant[worldId];
 
-        if (participant.validatorWithdrawalAddress != address(0)) {
+        if (participant.withdrawalAddress != address(0)) {
             revert AlreadyInPool();
         }
 
         address[] memory attestationChallengers;
         worldIdToParticipant[worldId] = Participant(
             worldId,
-            validatorWithdrawalAddress,
+            withdrawalAddress,
             msg.sender,
             block.timestamp,
             0,
@@ -90,13 +91,13 @@ contract SmoothiePool {
         );
         participants.push(worldId);
 
-        emit AddedToPool(worldId, validatorWithdrawalAddress);
+        emit AddedToPool(worldId, withdrawalAddress);
     }
 
     function initiateRewardsCreateAttestation(bytes memory worldId) external {
         Participant memory participant = worldIdToParticipant[worldId];
 
-        if (participant.validatorWithdrawalAddress == address(0)) {
+        if (participant.withdrawalAddress == address(0)) {
             revert ParticipantNotFound();
         }
 
@@ -119,13 +120,13 @@ contract SmoothiePool {
 
         bytes memory data = abi.encode(
             worldId,
-            participant.validatorWithdrawalAddress,
-            participant.validatorWalletAddress,
+            participant.withdrawalAddress,
+            participant.walletAddress,
             block.timestamp
         );
 
         bytes memory schema = bytes(
-            "bytes worldId,address validatorWithdrawalAddress,address validatorWalletAddress,uint64 timestamp"
+            "bytes worldId,address withdrawalAddress,address walletAddress,uint64 timestamp"
         );
 
         eas.attest(
@@ -136,7 +137,7 @@ contract SmoothiePool {
                     expirationTime: NO_EXPIRATION_TIME, // No expiration time
                     revocable: true,
                     refUID: EMPTY_UID, // No references UI
-                    data: data, // Encode a single uint256 as a parameter to the schema
+                    data: data,
                     value: 0 // No value/ETH
                 })
             })
@@ -144,8 +145,8 @@ contract SmoothiePool {
 
         emit RewardAttestationCreated(
             worldId,
-            participant.validatorWithdrawalAddress,
-            participant.validatorWalletAddress
+            participant.withdrawalAddress,
+            participant.walletAddress
         );
     }
 
@@ -161,8 +162,12 @@ contract SmoothiePool {
             challengerWorldId
         ];
 
-        if (challengerParticipant.validatorWalletAddress == address(0)) {
+        if (challengerParticipant.walletAddress == address(0)) {
             revert ParticipantNotFound();
+        }
+
+        if (challengerParticipant.walletAddress != msg.sender) {
+            revert ChallengerMustBeParticipant();
         }
 
         if (challengerParticipant.isSlashed) {
@@ -176,18 +181,17 @@ contract SmoothiePool {
         ) {
             if (
                 attestationOwnerParticipant.attestationChallengers[i] ==
-                challengerParticipant.validatorWalletAddress
+                challengerParticipant.walletAddress
             ) {
                 revert AlreadyRequestingChallenged();
             }
         }
 
-        // TODO: Authentiverify the challenger
+        uint256 unslashedParticipants = getUnslashedParticipants();
+
         attestationOwnerParticipant.attestationChallengers[
             attestationOwnerParticipant.attestationChallengers.length
-        ] = challengerParticipant.validatorWalletAddress;
-
-        uint256 unslashedParticipants = getUnslashedParticipants();
+        ] = challengerParticipant.walletAddress;
 
         if (
             attestationOwnerParticipant.attestationChallengers.length >
@@ -206,10 +210,10 @@ contract SmoothiePool {
         }
     }
 
-    function payoutParticipant(bytes memory worldId) internal {
+    function payoutRewardsAfterInitialization(bytes memory worldId) internal {
         Participant memory participant = worldIdToParticipant[worldId];
 
-        if (participant.validatorWithdrawalAddress == address(0)) {
+        if (participant.withdrawalAddress == address(0)) {
             revert ParticipantNotFound();
         }
 
@@ -237,7 +241,7 @@ contract SmoothiePool {
 
         worldIdToParticipant[worldId] = participant;
 
-        payable(address(participant.validatorWalletAddress)).transfer(
+        payable(address(participant.walletAddress)).transfer(
             address(this).balance / attestationOwnerShare
         );
     }
