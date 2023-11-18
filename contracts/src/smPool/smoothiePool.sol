@@ -89,7 +89,6 @@ contract SmoothiePool {
             withdrawalAddress,
             msg.sender,
             currentEpoch,
-            0,
             attestationChallengers,
             false,
             0
