@@ -208,7 +208,7 @@ contract SmoothiePool {
             }
         }
 
-        uint256 unslashedParticipants = getUnslashedParticipants();
+        //uint256 unslashedParticipants = getUnslashedParticipants();
 
         attestationOwnerParticipant.attestationChallengers[
             attestationOwnerParticipant.attestationChallengers.length
@@ -216,7 +216,7 @@ contract SmoothiePool {
 
         if (
             attestationOwnerParticipant.attestationChallengers.length >
-            (unslashedParticipants / 2)
+            (_totalParticipants / 2)
         ) {
             
             uint attestationOwnerParticipantDenomUnits = attestationOwnerParticipant.joinedEpoch - currentEpoch;
@@ -273,17 +273,19 @@ contract SmoothiePool {
         );
     }
 
-    function getUnslashedParticipants() public view returns (uint256) {
-        uint256 unslashedParticipants = 0;
-        for (uint256 i = 0; i < participants.length; i++) {
-            bytes memory worldId = participants[i];
-            Participant memory participant = worldIdToParticipant[worldId];
+    // function getUnslashedParticipants() public view returns (uint256) {
+    //     uint256 unslashedParticipants = 0;
+    //     for (uint256 i = 0; i < participants.length; i++) {
+    //         bytes memory worldId = participants[i];
+    //         Participant memory participant = worldIdToParticipant[worldId];
 
-            if (!participant.isSlashed) {
-                unslashedParticipants += 1;
-            }
-        }
+    //         if (!participant.isSlashed) {
+    //             unslashedParticipants += 1;
+    //         }
+    //     }
 
-        return unslashedParticipants;
-    }
+    //     return unslashedParticipants;
+    // }
+    // implement a fallback function to receive ether
+    receive() external payable {}
 }

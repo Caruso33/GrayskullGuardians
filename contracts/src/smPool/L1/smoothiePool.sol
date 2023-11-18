@@ -317,4 +317,7 @@ contract SmoothiePool {
 
     //     return unslashedParticipants;
     // }
+
+    // implement a fallback function to receive ether
+    receive() external payable {}
 }
