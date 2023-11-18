@@ -7,7 +7,9 @@ import Logger from '../../utils/Logger';
 
 export const SCHEMAS = [
   // {schema: 'string worldId,address withdrawalAddress,address walletAddress,uint64 timestamp', name: "GrayskullGuardiansSmoothiePool"}
-  {schema: 'string x', name: "xString"}
+  // {schema: 'string x', name: "xString"}
+  // {schema: 'uints x', name: "xUints"}
+  {schema: 'address y', name: "yAddress"}
 ]
 
 const func: DeployFunction = async ({ getNamedAccounts }: HardhatRuntimeEnvironment) => {
@@ -23,7 +25,7 @@ const func: DeployFunction = async ({ getNamedAccounts }: HardhatRuntimeEnvironm
       from: deployer
     });
 
-    Logger.log(`Registered schema ${schema} with UID ${getSchemaUID(schema, ZERO_ADDRESS, true)}`);
+    Logger.log(`Registered schema ${schema} with UID ${getSchemaUID(schema, ZERO_ADDRESS, revocable)}`);
   }
 
   return true;

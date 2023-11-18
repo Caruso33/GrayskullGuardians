@@ -4,7 +4,7 @@ import Chance from 'chance';
 import { AbiCoder, encodeBytes32String, keccak256, toUtf8Bytes, TransactionReceipt, Wallet } from 'ethers';
 import { DeployFunction } from 'hardhat-deploy/types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { NO_EXPIRATION, ZERO_ADDRESS, ZERO_BYTES32 } from '../../utils/Constants';
+import { NO_EXPIRATION, ZERO_ADDRESS, ZERO_BYTES32 } from '../utils/Constants';
 import {
   execute,
   getDeploymentDir,
@@ -12,9 +12,9 @@ import {
   isHardhat,
   isTestnet,
   setDeploymentMetadata
-} from '../../utils/Deploy';
-import { getSchemaUID, getUIDsFromAttestReceipt } from '../../utils/EAS';
-import Logger from '../../utils/Logger';
+} from '../utils/Deploy';
+import { getSchemaUID, getUIDsFromAttestReceipt } from '../utils/EAS';
+import Logger from '../utils/Logger';
 
 export const TEST_ATTESTATIONS_OUTPUT_PATH = path.join(getDeploymentDir(), 'test-attestations.json');
 

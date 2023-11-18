@@ -1,6 +1,6 @@
 import { DeployFunction } from 'hardhat-deploy/types';
 import { HardhatRuntimeEnvironment } from 'hardhat/types';
-import { deploy, DeployedContracts, InstanceName, setDeploymentMetadata } from '../../utils/Deploy';
+import { deploy, DeployedContracts, InstanceName, setDeploymentMetadata } from '../utils/Deploy';
 
 const func: DeployFunction = async ({ getNamedAccounts }: HardhatRuntimeEnvironment) => {
   const { deployer } = await getNamedAccounts();
