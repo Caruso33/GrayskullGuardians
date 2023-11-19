@@ -82,7 +82,6 @@ contract SmoothiePool {
         l2SmoothiePool = _l2Target;
     }
 
-
     function onEpoch() external {
         // uint256 unslashedParticipants = 0;
 
@@ -99,14 +98,12 @@ contract SmoothiePool {
         // }
         _totalDenomUnits += _totalParticipants;
         currentEpoch++;
-
-
     }
 
     function addToPool(
         bytes memory worldId,
         address withdrawalAddress
-    ) external returns(uint){
+    ) external returns (uint) {
         Participant memory participant = worldIdToParticipant[worldId];
 
         if (participant.withdrawalAddress != address(0)) {
@@ -130,9 +127,15 @@ contract SmoothiePool {
         uint256 gasPriceBid = 100000000;
         uint256 maxSubmissionCost = 24886;
         uint deposit = 9088100024886;
-        bytes memory data = abi.encodeWithSelector(IL2SmoothiePool.addToPool.selector, worldId, withdrawalAddress);
+        bytes memory data = abi.encodeWithSelector(
+            IL2SmoothiePool.addToPool.selector,
+            worldId,
+            withdrawalAddress
+        );
         uint callValue = address(this).balance - deposit;
-        uint256 ticketID = inbox.createRetryableTicket{ value: address(this).balance }(
+        uint256 ticketID = inbox.createRetryableTicket{
+            value: address(this).balance
+        }(
             l2SmoothiePool,
             callValue,
             maxSubmissionCost,
@@ -144,7 +147,7 @@ contract SmoothiePool {
         );
 
         emit AddedToPool(worldId, withdrawalAddress);
-        return(ticketID);
+        return (ticketID);
     }
 
     function initiateRewardsCreateAttestation(bytes memory worldId) external {
@@ -175,8 +178,7 @@ contract SmoothiePool {
         bytes memory data = abi.encode(
             worldId,
             participant.withdrawalAddress,
-            participant.walletAddress,
-            block.timestamp
+            participant.walletAddress
         );
 
         bytes memory schema = bytes(
@@ -252,7 +254,8 @@ contract SmoothiePool {
             attestationOwnerParticipant.attestationChallengers.length >
             (_totalParticipants / 2)
         ) {
-            uint attestationOwnerParticipantDenomUnits = attestationOwnerParticipant.joinedEpoch - currentEpoch;
+            uint attestationOwnerParticipantDenomUnits = attestationOwnerParticipant
+                    .joinedEpoch - currentEpoch;
             uint256 attestationOwnerShare = _totalDenomUnits /
                 attestationOwnerParticipantDenomUnits;
 

@@ -142,8 +142,7 @@ contract SmoothiePool {
         bytes memory data = abi.encode(
             worldId,
             participant.withdrawalAddress,
-            participant.walletAddress,
-            block.timestamp
+            participant.walletAddress
         );
 
         bytes memory schema = bytes(
