@@ -15,8 +15,8 @@ contract DeployFactoryGoerliScript is Script {
 
         // run with goerli RPC
          smoothiePool = new SmoothiePool(
-            address(0x0),
-            address(0x0)
+            address(0x63b9F0DFa2a6a3604Fb301b376Dc3a5b133EDd3a), // EAS
+            address(0x0) // Multisig
         );
 
         vm.stopBroadcast();
